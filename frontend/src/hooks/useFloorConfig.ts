@@ -2,8 +2,7 @@
 
 import { useEffect } from "react";
 import { useNavigationStore } from "@/stores/navigationStore";
-
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1`;
+import { apiFetch } from "@/utils/api";
 
 /**
  * Fetches building configuration from the backend and stores it
@@ -17,7 +16,7 @@ export function useFloorConfig(): void {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${API_URL}/floors`)
+    apiFetch("/api/v1/floors")
       .then((res) => res.json())
       .then((data) => {
         // Backend returns camelCase (Pydantic to_camel alias)

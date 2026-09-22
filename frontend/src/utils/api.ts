@@ -12,6 +12,7 @@ export const API_BASE =
 const KEY_STORAGE = "claude-office-api-key";
 
 let _apiKey: string | null = null;
+let _initialized = false;
 
 /** Store the API key (called from the token intake in page.tsx). */
 export function setApiKey(key: string): void {
@@ -26,6 +27,7 @@ export function getApiKey(): string | null {
 /** Read ?token= from the URL (stripping it from history) or sessionStorage. */
 export function initApiKeyFromBrowser(): void {
   if (typeof window === "undefined") return;
+  _initialized = true;
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
   if (token) {
@@ -57,6 +59,10 @@ export async function apiFetch(
   path: string,
   init?: RequestInit,
 ): Promise<Response> {
+  // Data hooks fire their effects before the page-level effect that calls
+  // initApiKeyFromBrowser, so the first requests of a load would otherwise go
+  // out unauthenticated and 401 against a backend with an explicit key.
+  if (!_initialized) initApiKeyFromBrowser();
   const headers = new Headers(init?.headers);
   if (_apiKey) {
     headers.set("X-API-Key", _apiKey);
