@@ -72,7 +72,11 @@ class Settings(BaseSettings):
     # ``disabled`` uses local fallback text only. The previous OAuth/SDK path
     # was removed because Anthropic no longer permits OAuth for this API.
     SUMMARY_BACKEND: str = "claude-cli"  # claude-cli | openai | disabled
-    SUMMARY_CONCURRENCY: int = 4  # shared cap on in-flight summary calls
+    # Each in-flight summary spawns a ``claude -p`` subprocess under the
+    # claude-cli backend, so this cap is memory pressure, not just rate.
+    # Four concurrent subprocesses alongside an active session is enough
+    # to exhaust RAM on a 16GB laptop; raise it per-host via .env instead.
+    SUMMARY_CONCURRENCY: int = 2  # shared cap on in-flight summary calls
 
     # claude-cli backend
     SUMMARY_CLI_PATH: str = "claude"
