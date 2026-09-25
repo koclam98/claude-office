@@ -6,6 +6,13 @@ import os
 # when CLAUDE_CODE_OAUTH_TOKEN is present in .env but expired.
 os.environ["SUMMARY_ENABLED"] = "False"
 
+# Tests call the API without auth headers. A CLAUDE_OFFICE_API_KEY in a
+# developer's local .env makes has_explicit_key true, which gates every
+# endpoint and fails the suite with 401s that say nothing about the code.
+# Environment variables win over .env, so clearing it here isolates the
+# tests from whatever the machine happens to be configured with.
+os.environ["CLAUDE_OFFICE_API_KEY"] = ""
+
 import asyncio
 import tempfile
 from collections.abc import AsyncIterator, Iterator
